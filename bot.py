@@ -17,76 +17,10 @@ cg = CoinGeckoAPI()
 client = discord.Client()
 bot = commands.Bot(command_prefix="$$")
 
-response = requests.get("https://newsapi.org/v2/everything?q=crypto&apiKey=27970bc01e6d43bcbffab5e06e555dfb")
+response = requests.get("https://newsapi.org/v2/everything?q=crypto&apiKey={YourNewsApiKeyHere") # GEt your self free API key at https://newsapi.org/
 data = json.loads(response.text)
 
 all_articles = data['articles']
-
-def get_crypto_chart(token):
-        chart_data = cg.get_coin_market_chart_by_id(id=f'{token}', vs_currency='gbp', days='7')
-
-        def unix_to_date(unix_time):
-            timestamp = datetime.fromtimestamp((unix_time/1000))
-            return f"{timestamp.strftime('%d-%m-%Y %H:%M:%S')}"
-
-
-        new_data = {}
-
-        for each in chart_data['prices']:
-            date = unix_to_date(each[0])
-            new_data[date] = each[1]
-
-        df = pd.DataFrame({'Dates': new_data.keys(), 'Prices': new_data.values()})
-        print(df.head())
-
-        df.plot(x ='Dates', y='Prices', kind = 'line', legend = None)	
-        plt.axis('off')
-        plt.title(f'7-day historical market price of {token}', fontsize=15, color= 'white', fontweight='bold');
-
-
-        filename =  "test.png"
-        plt.savefig(filename, transparent=True)
-
-        plt.close()
-
-
-
-
-class Coin:
-    def __init__(self, name):
-        self.name = name.lower()
-        
-        self.coin_data = cg.get_coins_markets(vs_currency='usd', ids=f'{self.name}')
-        
-        self.coin_name = self.coin_data[0]['name']
-        self.coin_image = self.coin_data[0]["image"]
-        self.coin_price = "${:,}".format(self.coin_data[0]['current_price'])
-
-        self.coin_circulating_supply = "{:,}".format(self.coin_data[0]["circulating_supply"])
-        self.coin_market_cap = "{:,}".format(self.coin_data[0]['market_cap'])
-
-        self.coin_high_24h = "${:,}".format(self.coin_data[0]['high_24h'])
-        self.coin_low_24h = "${:,}".format(self.coin_data[0]['low_24h'])
-
-        self.coin_price_change_percent = "{:,}%".format(round(self.coin_data[0]['price_change_percentage_24h'], 2))
-        
-        self.coin_ath_price = "${:,}".format(self.coin_data[0]["ath"])
-        self.coin_ath_change_percent = "{:,}%".format(self.coin_data[0]["ath_change_percentage"])
-        self.coin_atl = "${:,}".format(self.coin_data[0]["atl"])
-
-
-
-btc = Coin('bitcoin')
-xrp = Coin('ripple')
-eth = Coin('ethereum')
-link = Coin('chainlink')
-avax = Coin('avalanche-2')
-ada = Coin('cardano')
-vet = Coin('vechain')
-doge = Coin('dogecoin')
-filecoin = Coin('filecoin')
-qnt = Coin('quant-network')
-algo = Coin('algorand')
 
 
 trending_data = cg.get_search_trending()
@@ -128,6 +62,7 @@ async def on_message(message):
     # Converts user's input into a lowercase form
     message.content = message.content.lower().replace(' ', '')
 
+    a = ["Yooo wassup?", "Hi how are you?", "Sup?", "Hows ur portfolio doing?", "Sup? What are your thoughts on the current market?", "brrrr", "Erorrr 1993", "haahaa", "shitcoins to the moon!", "I think I drank too much oil...", "BRRR", "System error has occured, please contact support elon@spacex.com", "One morning I shot an elephant in my pajamas.", "BRRRR", "BRRRRRR", "Brrr", "Such lame chat.", "Can you tell me something new?", "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley", "hmmm", "ye?", "When it comes to those shitty jpges I must tell that I really do not like them.", "ur cute", "ur sexy", "ur so hot", "ur beatiful", "ur epic", "ur legendary!", "ur awesome!", "love you!", "Hiiiii! I might have an crush on you heh", "Sup baby!", "Ur so cool", "You are funny!", "Hows it doing bby?", "Wanna have a coffee sometime?", "I would like to have an cat", "I would like some oil, NOW!", "Can someone give me some oil?", "I think Im addicted to oil...", "*burb*", "heya!", "How are yall? Sorry for interupting.", "STOOOONKS, thats how you say my name!", "Did someone say... Fish?\n\n oh no one did? Bye then.", "Rick rick rick", "HAHA https://youtu.be/cpvC8_NMXmU", "cats funi e https://media.discordapp.net/attachments/944350145036820540/945379856651280404/unknown.png", "Skating cat! HAH https://tenor.com/view/cat-on-skateboard-cat-skateboard-cat-spinning-spinning-gif-21095646", "Cheap joke! https://youtu.be/W84GVTSFZXU"]
     joke = ["Why do bitcoin investors want a Lambo? \n Because they know Ferarri is owned by Fiat", "Hey dad, can I borrow ten dollars in Bitcoin? \n Dad: Twenty dollars and thirteen cents? Why in god's name you need to borrow nine dollars and sixty-seven cents?", "I have a joke on Bitcoin but it requires so much energy to get it.", "How can you tell who owns bitcoin at a party? \n Don't worry, they'll tell you.", "How do you get a Bitcoin technical analyst off your front porch? \n Pay for the pizza", "If I had a penny for every crashing crypto \n I would have a bitcoin", "Please only buy crypto during the day \n Otherwise, it will be your crypto-night", "My local butcher's has started accepting crypto as payment \n But only proof of steak"]
     if message.author == client.user:
         return
@@ -147,9 +82,6 @@ async def on_message(message):
     if message.content.startswith("$$joke"):
         await message.channel.send(random.choice(joke))
 
-    # New feature:- Return the top 5 news articles related to crypto from the NewAPI.
-    # One small issue is that the articles will remain the same until the bot is reloaded.
-    # Once reloadedm it fetches new articles if there are any from the API
     if message.content.startswith('$$news'):
         count = 0
         await message.channel.send(f"Hey! check your DMs for the todays Top 5 news articles")
@@ -158,325 +90,114 @@ async def on_message(message):
             await message.author.send(f"**{count}:- {each['title']}**\n*{each['content']}*\n{each['url']}")
             if count == 5:
                 break
+
+    # Random word triggers
+    if message.content.startswith("sup"):
+        await message.channel.send(random.choice(a))
+
+    if message.content.startswith("Sup"):
+        await message.channel.send(random.choice(a))
+
+    if message.content.startswith("Hello"):
+        await message.channel.send(random.choice(a))
+
+    if message.content.startswith("hello"):
+        await message.channel.send(random.choice(a))
+
+    if message.content.startswith("Yo"):
+        await message.channel.send(random.choice(a))
+
+    if message.content.startswith("yo"):
+        await message.channel.send(random.choice(a))
+
+    if message.content.startswith("wassup"):
+        await message.channel.send(random.choice(a))
     
+    if message.content.startswith("Wassup"):
+        await message.channel.send(random.choice(a))
 
-    if message.content.startswith('$$btc'):
-        get_crypto_chart('bitcoin')
-        
-        #### Create the initial embed object ####
-        embed=discord.Embed(title=f"{btc.coin_name}")
+    if message.content.startswith("Shitcoin"):
+        await message.channel.send(random.choice(a))
 
-        # Add author, thumbnail, fields, and footer to the embed
-        embed.set_author(name=f"{client.user.name}", icon_url=client.user.avatar_url)
+    if message.content.startswith("bro"):
+        await message.channel.send(random.choice(a))
 
-        embed.set_thumbnail(url=f"{btc.coin_image}")
+    if message.content.startswith("shitcoin"):
+        await message.channel.send(random.choice(a))
 
-        embed.add_field(name="Current Price 💵", value=btc.coin_price, inline=True)
-        embed.add_field(name="Circulating Supply 🪙", value= btc.coin_circulating_supply, inline=True)
-        embed.add_field(name="Market Cap 🤑", value= f"${btc.coin_market_cap}", inline=True)
+    if message.content.startswith("Bro"):
+        await message.channel.send(random.choice(a))
 
-        embed.add_field(name="24h-High ⬆️", value= btc.coin_high_24h, inline=True)
-        embed.add_field(name="24h-low ⬇️", value= btc.coin_low_24h, inline=True)
-        embed.add_field(name="Price Change 24h ⏰", value= btc.coin_price_change_percent, inline=True)
+    if message.content.startswith("Bitcoin"):
+        await message.channel.send(random.choice(a))
 
-        embed.add_field(name="All Time High 👑", value= btc.coin_ath_price, inline=True)
-        embed.add_field(name="ATH Percent Change 📊", value= btc.coin_ath_change_percent, inline=True)
-        embed.add_field(name="ATL 😢", value = btc.coin_atl, inline=True)
-        file = discord.File("test.png", filename="image.png")
+    if message.content.startswith("bitcoin"):
+        await message.channel.send(random.choice(a))
 
-        embed.set_image(url="attachment://image.png")
+    if message.content.startswith("ur so funny"):
+        await message.channel.send(random.choice(a))
 
-        
-        embed.set_footer(text="Moon wen? 🙏")
+    if message.content.startswith("your so funny"):
+        await message.channel.send(random.choice(a))
 
-        await message.channel.send(file=file, embed=embed)
+    if message.content.startswith("just"):
+        await message.channel.send(random.choice(a))
 
-    if message.content.startswith('$$xrp'):
-        get_crypto_chart('ripple')
-        
+    if message.content.startswith("time"):
+        await message.channel.send(random.choice(a))
 
-        #### Create the initial em 
-        embed=discord.Embed(title=f"{xrp.coin_name}")
+    if message.content.startswith("into"):
+        await message.channel.send(random.choice(a))
 
-        # Add author, thumbnail, fields, and footer to the embed
-        embed.set_author(name=f"{client.user.name}", icon_url=client.user.avatar_url)
+    if message.content.startswith("could"):
+        await message.channel.send(random.choice(a))
 
-        embed.set_thumbnail(url=f"{xrp.coin_image}")
+    if message.content.startswith("@Stonks"):
+        await message.channel.send("mmmm")
 
-        embed.add_field(name="Current Price 💵", value= xrp.coin_price, inline=True)
-        embed.add_field(name="Circulating Supply 🪙", value= xrp.coin_circulating_supply, inline=True)
-        embed.add_field(name="Market Cap 🤑", value= f"${xrp.coin_market_cap}", inline=True)
+    if message.content.startswith("@944557308447440896"):
+        await message.channel.send("mmmm")
 
-        embed.add_field(name="24h-High ⬆️", value= xrp.coin_high_24h, inline=True)
-        embed.add_field(name="24h-low ⬇️", value= xrp.coin_low_24h, inline=True)
-        embed.add_field(name="Price Change 24h ⏰", value= xrp.coin_price_change_percent, inline=True)
+    if message.content.startswith("love"):
+        await message.channel.send(random.choice(a))
 
-        embed.add_field(name="All Time High 👑", value= xrp.coin_ath_price, inline=True)
-        embed.add_field(name="ATH Percent Change 📊", value= xrp.coin_ath_change_percent , inline=True)
-        embed.add_field(name="ATL 😢", value = xrp.coin_atl, inline=True)
-        file = discord.File("test.png", filename="image.png")
+    if message.content.startswith("Damn"):
+        await message.channel.send(random.choice(a))
 
-        embed.set_image(url="attachment://image.png")
+    if message.content.startswith("epic"):
+        await message.channel.send(random.choice(a))
 
-        
-        embed.set_footer(text="Moon wen? 🙏")
+    if message.content.startswith("chat"):
+        await message.channel.send(random.choice(a))
 
+    if message.content.startswith("vc"):
+        await message.channel.send(random.choice(a))
 
-        await message.channel.send(file=file, embed=embed)
+    if message.content.startswith("bathroom"):
+        await message.channel.send(random.choice(a))
 
-    if message.content.startswith('$$eth'):
-        get_crypto_chart('ethereum')
-        
-        #### Create the initial embed object #eth
-        embed=discord.Embed(title=f"{eth.coin_name}")
+    if message.content.startswith("question"):
+        await message.channel.send(random.choice(a))
 
-        # Add author, thumbnail, fields, and footer to the embed
-        embed.set_author(name=f"{client.user.name}", icon_url=client.user.avatar_url)
+    if message.content.startswith("bots"):
+        await message.channel.send(random.choice(a))
 
-        embed.set_thumbnail(url=f"{eth.coin_image}")
+    if message.content.startswith("Stonks"):
+        await message.channel.send(random.choice(a))
 
-        embed.add_field(name="Current Price 💵", value = eth.coin_price, inline=True)
-        embed.add_field(name="Circulating Supply 🪙", value= eth.coin_circulating_supply, inline=True)
-        embed.add_field(name="Market Cap 🤑", value= f"${eth.coin_market_cap}", inline=True)
+    if message.content.startswith("bubble"):
+        await message.channel.send(random.choice(a))
 
-        embed.add_field(name="24h-High ⬆️", value= eth.coin_high_24h, inline=True)
-        embed.add_field(name="24h-low ⬇️", value= eth.coin_low_24h, inline=True)
-        embed.add_field(name="Price Change 24h ⏰", value= eth.coin_price_change_percent, inline=True)
-
-        embed.add_field(name="All Time High 👑", value= eth.coin_ath_price, inline=True)
-        embed.add_field(name="ATH Percent Change 📊", value= eth.coin_ath_change_percent, inline=True)
-        embed.add_field(name="ATL 😢", value = eth.coin_atl, inline=True)
-        file = discord.File("test.png", filename="image.png")
-
-        embed.set_image(url="attachment://image.png")
-
-        
-        embed.set_footer(text="Moon wen? 🙏")
-
-        await message.channel.send(file=file, embed=embed)
-
+    if message.content.startswith("Cat"):
+        await message.channel.send(random.choice(a))
     
-    if message.content.startswith('$$link'):
-        get_crypto_chart('chainlink')
-        #### Create the initial embed object #eth
-        embed=discord.Embed(title=f"{link.coin_name}")
+    if message.content.startswith("This"):
+        await message.channel.send(random.choice(a))
 
-        # Add author, thumbnail, fields, and footer to the embed
-        embed.set_author(name=f"{client.user.name}", icon_url=client.user.avatar_url)
+    if message.content.startswith("you"):
+        await message.channel.send(random.choice(a))
 
-        embed.set_thumbnail(url=f"{link.coin_image}")
+    if message.content.startswith("of"):
+        await message.channel.send(random.choice(a))
 
-        embed.add_field(name="Current Price 💵", value= link.coin_price, inline=True)
-        embed.add_field(name="Circulating Supply 🪙", value= link.coin_circulating_supply, inline=True)
-        embed.add_field(name="Market Cap 🤑", value= f"${link.coin_market_cap}", inline=True)
-
-        embed.add_field(name="24h-High ⬆️", value= link.coin_high_24h, inline=True)
-        embed.add_field(name="24h-low ⬇️", value= link.coin_low_24h, inline=True)
-        embed.add_field(name="Price Change 24h ⏰", value= link.coin_price_change_percent, inline=True)
-
-        embed.add_field(name="All Time High 👑", value=link.coin_ath_price, inline=True)
-        embed.add_field(name="ATH Percent Change 📊", value=link.coin_ath_change_percent, inline=True)
-        embed.add_field(name="ATL 😢", value = link.coin_atl, inline=True)
-
-        file = discord.File("test.png", filename="image.png")
-
-        embed.set_image(url="attachment://image.png")
-
-        
-        embed.set_footer(text="Moon wen? 🙏")
-
-        await message.channel.send(file=file, embed=embed)
-    
-    if message.content.startswith('$$ada'):
-        get_crypto_chart('cardano')
-        
-        #### Create the initial embed object #eth
-        embed=discord.Embed(title=f"{ada.coin_name}")
-
-        # Add author, thumbnail, fields, and footer to the embed
-        embed.set_author(name=f"{client.user.name}", icon_url=client.user.avatar_url)
-
-        embed.set_thumbnail(url=f"{ada.coin_image}")
-
-        embed.add_field(name="Current Price 💵", value= ada.coin_price, inline=True)
-        embed.add_field(name="Circulating Supply 🪙", value= ada.coin_circulating_supply, inline=True)
-        embed.add_field(name="Market Cap 🤑", value= f"${ada.coin_market_cap}", inline=True)
-
-        embed.add_field(name="24h-High ⬆️", value= ada.coin_high_24h, inline=True)
-        embed.add_field(name="24h-low ⬇️", value= ada.coin_low_24h, inline=True)
-        embed.add_field(name="Price Change 24h ⏰", value= ada.coin_price_change_percent, inline=True)
-
-        embed.add_field(name="All Time High 👑", value= ada.coin_ath_price, inline=True)
-        embed.add_field(name="ATH Percent Change 📊", value= ada.coin_ath_change_percent, inline=True)
-        embed.add_field(name="ATL 😢", value = ada.coin_atl, inline=True)
-        file = discord.File("test.png", filename="image.png")
-
-        embed.set_image(url="attachment://image.png")
-
-        
-        embed.set_footer(text="Moon wen? 🙏")
-
-        await message.channel.send(file=file, embed=embed)
-
-    if message.content.startswith('$$avax'):
-        get_crypto_chart('avalanche-2')
-        
-        #### Create the initial embed object #eth
-        embed=discord.Embed(title=f"{avax.coin_name}")
-
-        # Add author, thumbnail, fields, and footer to the embed
-        embed.set_author(name=f"{client.user.name}", icon_url=client.user.avatar_url)
-
-        embed.set_thumbnail(url=f"{avax.coin_image}")
-
-        embed.add_field(name="Current Price 💵", value= avax.coin_price, inline=True)
-        embed.add_field(name="Circulating Supply 🪙", value= avax.coin_circulating_supply, inline=True)
-        embed.add_field(name="Market Cap 🤑", value= f"${avax.coin_market_cap}", inline=True)
-
-        embed.add_field(name="24h-High ⬆️", value= avax.coin_high_24h, inline=True)
-        embed.add_field(name="24h-low ⬇️", value= avax.coin_low_24h, inline=True)
-        embed.add_field(name="Price Change 24h ⏰", value= avax.coin_price_change_percent, inline=True)
-
-        embed.add_field(name="All Time High 👑", value= avax.coin_ath_price, inline=True)
-        embed.add_field(name="ATH Percent Change 📊", value= avax.coin_ath_change_percent, inline=True)
-        embed.add_field(name="ATL 😢", value = avax.coin_atl, inline=True)
-        file = discord.File("test.png", filename="image.png")
-
-        embed.set_image(url="attachment://image.png")
-
-        
-        embed.set_footer(text="Moon wen? 🙏")
-
-        await message.channel.send(file=file, embed=embed)
-
-    if message.content.startswith('$$doge'):
-        get_crypto_chart('dogecoin')
-        
-        #### Create the initial embed object #eth
-        embed=discord.Embed(title=f"{doge.coin_name}")
-
-        # Add author, thumbnail, fields, and footer to the embed
-        embed.set_author(name=f"{client.user.name}", icon_url=client.user.avatar_url)
-
-        embed.set_thumbnail(url=f"{doge.coin_image}")
-
-        embed.add_field(name="Current Price 💵", value= doge.coin_price, inline=True)
-        embed.add_field(name="Circulating Supply 🪙", value= doge.coin_circulating_supply, inline=True)
-        embed.add_field(name="Market Cap 🤑", value= f"${doge.coin_market_cap}", inline=True)
-
-        embed.add_field(name="24h-High ⬆️", value= doge.coin_high_24h, inline=True)
-        embed.add_field(name="24h-low ⬇️", value= doge.coin_low_24h, inline=True)
-        embed.add_field(name="Price Change 24h ⏰", value= doge.coin_price_change_percent, inline=True)
-
-        embed.add_field(name="All Time High 👑", value= doge.coin_ath_price, inline=True)
-        embed.add_field(name="ATH Percent Change 📊", value= doge.coin_ath_change_percent, inline=True)
-        embed.add_field(name="ATL 😢", value = doge.coin_atl, inline=True)
-        
-        file = discord.File("test.png", filename="image.png")
-
-        embed.set_image(url="attachment://image.png")
-
-        
-        embed.set_footer(text="Moon wen? 🙏")
-
-        await message.channel.send(file=file, embed=embed)
-    
-    if message.content.startswith('$$vet'):
-        get_crypto_chart('vechain')
-        
-        #### Create the initial embed object #eth
-        embed=discord.Embed(title=f"{vet.coin_name}")
-
-        # Add author, thumbnail, fields, and footer to the embed
-        embed.set_author(name=f"{client.user.name}", icon_url=client.user.avatar_url)
-
-        embed.set_thumbnail(url=f"{vet.coin_image}")
-
-        embed.add_field(name="Current Price 💵", value= vet.coin_price, inline=True)
-        embed.add_field(name="Circulating Supply 🪙", value= vet.coin_circulating_supply, inline=True)
-        embed.add_field(name="Market Cap 🤑", value= f"${vet.coin_market_cap}", inline=True)
-
-        embed.add_field(name="24h-High ⬆️", value= vet.coin_high_24h, inline=True)
-        embed.add_field(name="24h-low ⬇️", value= vet.coin_low_24h, inline=True)
-        embed.add_field(name="Price Change 24h ⏰", value= vet.coin_price_change_percent, inline=True)
-
-        embed.add_field(name="All Time High 👑", value= vet.coin_ath_price, inline=True)
-        embed.add_field(name="ATH Percent Change 📊", value= vet.coin_ath_change_percent, inline=True)
-        embed.add_field(name="ATL 😢", value = vet.coin_atl, inline=True)
-
-        file = discord.File("test.png", filename="image.png")
-
-        embed.set_image(url="attachment://image.png")
-
-        
-        embed.set_footer(text="Moon wen? 🙏")
-
-        await message.channel.send(file=file, embed=embed)
-
-    
-    if message.content.startswith('$$filecoin'):
-        get_crypto_chart('filecoin')
-        #### Create the initial embed object #eth
-        embed=discord.Embed(title=f"{filecoin.coin_name}")
-
-        # Add author, thumbnail, fields, and footer to the embed
-        embed.set_author(name=f"{client.user.name}", icon_url=client.user.avatar_url)
-
-        embed.set_thumbnail(url=f"{filecoin.coin_image}")
-
-        embed.add_field(name="Current Price 💵", value= filecoin.coin_price, inline=True)
-        embed.add_field(name="Circulating Supply 🪙", value= filecoin.coin_circulating_supply, inline=True)
-        embed.add_field(name="Market Cap 🤑", value= f"${filecoin.coin_market_cap}", inline=True)
-
-        embed.add_field(name="24h-High ⬆️", value= filecoin.coin_high_24h, inline=True)
-        embed.add_field(name="24h-low ⬇️", value= filecoin.coin_low_24h, inline=True)
-        embed.add_field(name="Price Change 24h ⏰", value= filecoin.coin_price_change_percent, inline=True)
-
-        embed.add_field(name="All Time High 👑", value= filecoin.coin_ath_price, inline=True)
-        embed.add_field(name="ATH Percent Change 📊", value= filecoin.coin_ath_change_percent, inline=True)
-        embed.add_field(name="ATL 😢", value = filecoin.coin_atl, inline=True)
-
-        file = discord.File("test.png", filename="image.png")
-
-        embed.set_image(url="attachment://image.png")
-
-        
-        embed.set_footer(text="Moon wen? 🙏")
-
-        await message.channel.send(file=file, embed=embed)
-
-
-    
-    if message.content.startswith('$$qnt'):
-        get_crypto_chart('quant-network')
-        
-        #### Create the initial embed object #eth
-        embed=discord.Embed(title=f"{qnt.coin_name}")
-
-        # Add author, thumbnail, fields, and footer to the embed
-        embed.set_author(name=f"{client.user.name}", icon_url=client.user.avatar_url)
-
-        embed.set_thumbnail(url=f"{qnt.coin_image}")
-
-        embed.add_field(name="Current Price 💵", value= qnt.coin_price, inline=True)
-        embed.add_field(name="Circulating Supply 🪙", value= qnt.coin_circulating_supply, inline=True)
-        embed.add_field(name="Market Cap 🤑", value= f"${qnt.coin_market_cap}", inline=True)
-
-        embed.add_field(name="24h-High ⬆️", value= qnt.coin_high_24h, inline=True)
-        embed.add_field(name="24h-low ⬇️", value= qnt.coin_low_24h, inline=True)
-        embed.add_field(name="Price Change 24h ⏰", value= qnt.coin_price_change_percent, inline=True)
-
-        embed.add_field(name="All Time High 👑", value= qnt.coin_ath_price, inline=True)
-        embed.add_field(name="ATH Percent Change 📊", value= qnt.coin_ath_change_percent, inline=True)
-        embed.add_field(name="ATL 😢", value = qnt.coin_atl, inline=True)
-
-        file = discord.File("test.png", filename="image.png")
-
-        embed.set_image(url="attachment://image.png")
-
-        embed.set_footer(text="Moon wen? 🙏")
-
-        await message.channel.send(file=file, embed=embed)
-
-
-client.run("") # your token here
+client.run("YourTokenHere")
