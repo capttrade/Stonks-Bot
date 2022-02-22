@@ -479,4 +479,4 @@ async def on_message(message):
         await message.channel.send(file=file, embed=embed)
 
 
-client.run("OTQ0NTU3MzA4NDQ3NDQwODk2.YhDViw.ASpaO6iDbHkFwL_-fJlNN2_SbeM")
+client.run("")
